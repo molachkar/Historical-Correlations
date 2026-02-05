@@ -15,7 +15,6 @@ Processing economic data: FED RATE.csv
 Processing economic data: GEO.csv
   Saved to GEO.csv
 Processing indicators: INDICATORS.csv
-  Warning: 5113 NaN values remain
   Saved to INDICATORS.csv
 Processing market data: NASDAQ.csv
   Saved to NASDAQ.csv
@@ -50,19 +49,19 @@ Combining all cleaned files into master dataset
   Merged: EURUSD.csv (total: 10 columns)
   Merged: FED RATE.csv (total: 11 columns)
   Merged: GEO.csv (total: 12 columns)
-  Merged: INDICATORS.csv (total: 47 columns)
-  Merged: NASDAQ.csv (total: 52 columns)
-  Merged: NFP.csv (total: 53 columns)
-  Merged: PCE.csv (total: 54 columns)
-  Merged: RUSSELL2000.csv (total: 59 columns)
-  Merged: SP500.csv (total: 64 columns)
-  Merged: TIPS10Y.csv (total: 65 columns)
-  Merged: TIPS2Y.csv (total: 66 columns)
-  Merged: TIPS5Y.csv (total: 67 columns)
-  Merged: UNEMPLOYMENT RATE.csv (total: 68 columns)
-  Merged: USDJPY.csv (total: 72 columns)
-  Merged: VIX.csv (total: 76 columns)
-  Merged: XAUUSD.csv (total: 81 columns)
+  Merged: INDICATORS.csv (total: 51 columns)
+  Merged: NASDAQ.csv (total: 56 columns)
+  Merged: NFP.csv (total: 57 columns)
+  Merged: PCE.csv (total: 58 columns)
+  Merged: RUSSELL2000.csv (total: 63 columns)
+  Merged: SP500.csv (total: 68 columns)
+  Merged: TIPS10Y.csv (total: 69 columns)
+  Merged: TIPS2Y.csv (total: 70 columns)
+  Merged: TIPS5Y.csv (total: 71 columns)
+  Merged: UNEMPLOYMENT RATE.csv (total: 72 columns)
+  Merged: USDJPY.csv (total: 76 columns)
+  Merged: VIX.csv (total: 80 columns)
+  Merged: XAUUSD.csv (total: 85 columns)
 
-Master dataset created: 5115 rows, 81 columns
+Master dataset created: 5115 rows, 85 columns
 Saved to: master_dataset.csv

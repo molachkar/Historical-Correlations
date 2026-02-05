@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from datetime import datetime
 
-INPUT_FILE = "GEO.csv"
+INPUT_FILE = "INDICATORS.csv"
 
 def clean_and_align_data():
     

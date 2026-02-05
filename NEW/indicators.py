@@ -208,256 +208,213 @@ class TechnicalIndicators:
         # Senkou Span B (Leading Span B)
         senkou_b_high = self.df['High'].rolling(window=senkou_b).max()
         senkou_b_low = self.df['Low'].rolling(window=senkou_b).min()
-        senkou_span_b = ((senkou_b_high + senkou_b_low) / 2).shift(displacement)
+        senkou_b = ((senkou_b_high + senkou_b_low) / 2).shift(displacement)
         
-        return tenkan_sen, kijun_sen, senkou_a, senkou_span_b
+        return tenkan_sen, kijun_sen, senkou_a, senkou_b
     
     # ==================== ADVANCED INDICATORS ====================
     
+    def calculate_vwap(self):
+        """Calculate Volume Weighted Average Price"""
+        typical_price = (self.df['High'] + self.df['Low'] + self.df['Close']) / 3
+        return (typical_price * self.df['Volume']).cumsum() / self.df['Volume'].cumsum()
+    
     def calculate_parabolic_sar(self, af_start=0.02, af_increment=0.02, af_max=0.2):
         """Calculate Parabolic SAR"""
-        length = len(self.df)
         high = self.df['High'].values
         low = self.df['Low'].values
         close = self.df['Close'].values
         
-        psar = np.zeros(length)
-        bull = True
-        af = af_start
-        ep = low[0]
-        hp = high[0]
-        lp = low[0]
+        psar = np.zeros(len(close))
+        trend = np.ones(len(close))
+        ep = np.zeros(len(close))
+        af = np.zeros(len(close))
         
+        # Initialize
         psar[0] = close[0]
+        trend[0] = 1
+        ep[0] = high[0]
+        af[0] = af_start
         
-        for i in range(1, length):
-            if bull:
-                psar[i] = psar[i-1] + af * (hp - psar[i-1])
-                if low[i] < psar[i]:
-                    bull = False
-                    psar[i] = hp
-                    lp = low[i]
-                    af = af_start
-            else:
-                psar[i] = psar[i-1] + af * (lp - psar[i-1])
-                if high[i] > psar[i]:
-                    bull = True
-                    psar[i] = lp
-                    hp = high[i]
-                    af = af_start
-            
-            if bull:
-                if high[i] > hp:
-                    hp = high[i]
-                    af = min(af + af_increment, af_max)
-                if low[i-1] < psar[i]:
-                    psar[i] = low[i-1]
-                if low[i-2] < psar[i]:
-                    psar[i] = low[i-2]
-            else:
-                if low[i] < lp:
-                    lp = low[i]
-                    af = min(af + af_increment, af_max)
-                if high[i-1] > psar[i]:
-                    psar[i] = high[i-1]
-                if high[i-2] > psar[i]:
-                    psar[i] = high[i-2]
+        for i in range(1, len(close)):
+            if trend[i-1] == 1:  # Uptrend
+                psar[i] = psar[i-1] + af[i-1] * (ep[i-1] - psar[i-1])
+                
+                if low[i] < psar[i]:  # Trend reversal
+                    trend[i] = -1
+                    psar[i] = ep[i-1]
+                    ep[i] = low[i]
+                    af[i] = af_start
+                else:
+                    trend[i] = 1
+                    if high[i] > ep[i-1]:
+                        ep[i] = high[i]
+                        af[i] = min(af[i-1] + af_increment, af_max)
+                    else:
+                        ep[i] = ep[i-1]
+                        af[i] = af[i-1]
+            else:  # Downtrend
+                psar[i] = psar[i-1] - af[i-1] * (psar[i-1] - ep[i-1])
+                
+                if high[i] > psar[i]:  # Trend reversal
+                    trend[i] = 1
+                    psar[i] = ep[i-1]
+                    ep[i] = high[i]
+                    af[i] = af_start
+                else:
+                    trend[i] = -1
+                    if low[i] < ep[i-1]:
+                        ep[i] = low[i]
+                        af[i] = min(af[i-1] + af_increment, af_max)
+                    else:
+                        ep[i] = ep[i-1]
+                        af[i] = af[i-1]
         
         return pd.Series(psar, index=self.df.index)
     
-    def calculate_awesome_oscillator(self, fast=5, slow=34):
+    def calculate_awesome_oscillator(self, short=5, long=34):
         """Calculate Awesome Oscillator"""
-        median_price = (self.df['High'] + self.df['Low']) / 2
-        ao = median_price.rolling(window=fast).mean() - median_price.rolling(window=slow).mean()
-        return ao
+        median = (self.df['High'] + self.df['Low']) / 2
+        short_ma = median.rolling(window=short).mean()
+        long_ma = median.rolling(window=long).mean()
+        return short_ma - long_ma
     
     def calculate_williams_r(self, period=14):
         """Calculate Williams %R"""
-        highest_high = self.df['High'].rolling(window=period).max()
-        lowest_low = self.df['Low'].rolling(window=period).min()
-        williams_r = -100 * ((highest_high - self.df['Close']) / (highest_high - lowest_low))
-        return williams_r
+        high_max = self.df['High'].rolling(window=period).max()
+        low_min = self.df['Low'].rolling(window=period).min()
+        return -100 * ((high_max - self.df['Close']) / (high_max - low_min))
     
     def calculate_cci(self, period=20):
         """Calculate Commodity Channel Index"""
-        tp = (self.df['High'] + self.df['Low'] + self.df['Close']) / 3
-        sma = tp.rolling(window=period).mean()
-        mad = tp.rolling(window=period).apply(lambda x: np.abs(x - x.mean()).mean())
-        cci = (tp - sma) / (0.015 * mad)
-        return cci
+        typical_price = (self.df['High'] + self.df['Low'] + self.df['Close']) / 3
+        sma = typical_price.rolling(window=period).mean()
+        mad = typical_price.rolling(window=period).apply(lambda x: np.abs(x - x.mean()).mean())
+        return (typical_price - sma) / (0.015 * mad)
     
     def calculate_mfi(self, period=14):
-        """Calculate Money Flow Index (requires Volume)"""
-        tp = (self.df['High'] + self.df['Low'] + self.df['Close']) / 3
-        mf = tp * self.df['Volume']
+        """Calculate Money Flow Index"""
+        typical_price = (self.df['High'] + self.df['Low'] + self.df['Close']) / 3
+        money_flow = typical_price * self.df['Volume']
         
-        mf_pos = pd.Series(0.0, index=self.df.index)
-        mf_neg = pd.Series(0.0, index=self.df.index)
+        positive_flow = money_flow.where(typical_price > typical_price.shift(1), 0)
+        negative_flow = money_flow.where(typical_price < typical_price.shift(1), 0)
         
-        for i in range(1, len(self.df)):
-            if tp.iloc[i] > tp.iloc[i-1]:
-                mf_pos.iloc[i] = mf.iloc[i]
-            elif tp.iloc[i] < tp.iloc[i-1]:
-                mf_neg.iloc[i] = mf.iloc[i]
+        positive_mf = positive_flow.rolling(window=period).sum()
+        negative_mf = negative_flow.rolling(window=period).sum()
         
-        mf_pos_sum = mf_pos.rolling(window=period).sum()
-        mf_neg_sum = mf_neg.rolling(window=period).sum()
-        
-        mfi = 100 - (100 / (1 + (mf_pos_sum / mf_neg_sum)))
+        mfi = 100 - (100 / (1 + positive_mf / negative_mf))
         return mfi
     
     def calculate_roc(self, period=12):
         """Calculate Rate of Change"""
-        roc = ((self.df['Close'] - self.df['Close'].shift(period)) / 
-               self.df['Close'].shift(period)) * 100
-        return roc
+        return ((self.df['Close'] - self.df['Close'].shift(period)) / 
+                self.df['Close'].shift(period)) * 100
     
-    def calculate_hurst_exponent(self, window=100):
-        """Calculate Hurst Exponent (mean reversion indicator)"""
-        def hurst(ts):
-            if len(ts) < 20:
-                return np.nan
-            
-            lags = range(2, min(20, len(ts)//2))
-            tau = [np.std(np.subtract(ts[lag:], ts[:-lag])) for lag in lags]
-            
-            try:
-                poly = np.polyfit(np.log(lags), np.log(tau), 1)
-                return poly[0] * 2.0
-            except:
-                return np.nan
-        
-        hurst_values = self.df['Close'].rolling(window=window).apply(hurst, raw=False)
-        return hurst_values
-    
-    def calculate_vwap(self):
-        """Calculate Volume Weighted Average Price (simple daily VWAP)"""
-        tp = (self.df['High'] + self.df['Low'] + self.df['Close']) / 3
-        vwap = (tp * self.df['Volume']).cumsum() / self.df['Volume'].cumsum()
-        return vwap
-    
-    # ==================== EFFICIENCY RATIO ====================
+
     
     def calculate_efficiency_ratio(self, period=10):
-        """
-        Calculate Kaufman's Efficiency Ratio
-        Measures price movement efficiency
-        """
+        """Calculate Efficiency Ratio (Kaufman)"""
         change = abs(self.df['Close'] - self.df['Close'].shift(period))
         volatility = abs(self.df['Close'].diff()).rolling(window=period).sum()
-        er = change / volatility
-        return er
+        return change / volatility
     
     # ==================== MASTER CALCULATION ====================
     
     def calculate_all_indicators(self):
         """Calculate all technical indicators"""
-        print("Calculating all technical indicators...")
-        
-        # EMAs
-        print("  ✓ Calculating EMAs...")
+        print("Calculating EMAs...")
         self.calculate_all_emas()
         
-        # Volatility
-        print("  ✓ Calculating Volatility indicators...")
+        print("Calculating Volatility Indicators...")
         self.df['Parkinson_Vol'] = self.calculate_parkinson_volatility()
-        self.df['YangZhang_Vol'] = self.calculate_yang_zhang_volatility()
-        self.df['Vol_Percentile'] = self.calculate_volatility_percentile(self.df['Parkinson_Vol'])
+        self.df['Yang_Zhang_Vol'] = self.calculate_yang_zhang_volatility()
+        self.df['Vol_Percentile'] = self.calculate_volatility_percentile(self.df['Yang_Zhang_Vol'])
         self.df['Vol_Regime'] = self.classify_volatility_regime(self.df['Vol_Percentile'])
         
-        # Momentum
-        print("  ✓ Calculating Momentum indicators...")
+        print("Calculating Momentum Indicators...")
         self.df['RSI'] = self.calculate_rsi()
-        self.df['MACD'], self.df['MACD_Signal'], self.df['MACD_Hist'] = self.calculate_macd()
+        macd, signal, hist = self.calculate_macd()
+        self.df['MACD'] = macd
+        self.df['MACD_Signal'] = signal
+        self.df['MACD_Hist'] = hist
         
-        # Trend
-        print("  ✓ Calculating Trend indicators...")
-        self.df['ADX'], self.df['Plus_DI'], self.df['Minus_DI'] = self.calculate_adx()
+        print("Calculating Trend Indicators...")
+        adx, plus_di, minus_di = self.calculate_adx()
+        self.df['ADX'] = adx
+        self.df['Plus_DI'] = plus_di
+        self.df['Minus_DI'] = minus_di
         
-        # Bollinger Bands
-        print("  ✓ Calculating Bollinger Bands...")
-        self.df['BB_Upper'], self.df['BB_Middle'], self.df['BB_Lower'], self.df['BB_Width'] = \
-            self.calculate_bollinger_bands()
+        print("Calculating Bollinger Bands...")
+        bb_upper, bb_middle, bb_lower, bb_width = self.calculate_bollinger_bands()
+        self.df['BB_Upper'] = bb_upper
+        self.df['BB_Middle'] = bb_middle
+        self.df['BB_Lower'] = bb_lower
+        self.df['BB_Width'] = bb_width
         
-        # ATR
-        print("  ✓ Calculating ATR...")
+        print("Calculating ATR...")
         self.df['ATR'] = self.calculate_atr()
         
-        # Stochastic
-        print("  ✓ Calculating Stochastic...")
-        self.df['Stoch_K'], self.df['Stoch_D'] = self.calculate_stochastic()
+        print("Calculating Stochastic...")
+        stoch_k, stoch_d = self.calculate_stochastic()
+        self.df['Stoch_K'] = stoch_k
+        self.df['Stoch_D'] = stoch_d
         
-        # Ichimoku
-        print("  ✓ Calculating Ichimoku Cloud...")
-        self.df['Ichimoku_TK'], self.df['Ichimoku_KJ'], self.df['Ichimoku_SA'], self.df['Ichimoku_SB'] = \
-            self.calculate_ichimoku()
+        print("Calculating Ichimoku Cloud...")
+        tk, kj, sa, sb = self.calculate_ichimoku()
+        self.df['Ichimoku_TK'] = tk
+        self.df['Ichimoku_KJ'] = kj
+        self.df['Ichimoku_SA'] = sa
+        self.df['Ichimoku_SB'] = sb
         
-        # Advanced
-        print("  ✓ Calculating Advanced indicators...")
+        print("Calculating Advanced Indicators...")
+        self.df['VWAP'] = self.calculate_vwap()
         self.df['PSAR'] = self.calculate_parabolic_sar()
         self.df['AO'] = self.calculate_awesome_oscillator()
         self.df['Williams_R'] = self.calculate_williams_r()
         self.df['CCI'] = self.calculate_cci()
         self.df['MFI'] = self.calculate_mfi()
         self.df['ROC'] = self.calculate_roc()
-        self.df['Hurst'] = self.calculate_hurst_exponent()
-        self.df['VWAP'] = self.calculate_vwap()
+        
+        
+        print("Calculating Efficiency Ratio...")
         self.df['Efficiency_Ratio'] = self.calculate_efficiency_ratio()
         
-        print("✓ All indicators calculated successfully!")
-        
+        print("✓ All indicators calculated!")
         return self.df
     
     # ==================== OUTPUT FORMATTING ====================
     
-    def format_to_deepin_structure(self, start_row=200):
+    def format_to_deepin_structure(self, start_date='2011-01-01'):
         """
-        Format output to match deepin_daily.json structure
-        Start from row 200 to ensure all indicators have valid values
+        Format data to match deepin_daily.json structure
+        Only includes rows from start_date onwards to ensure valid indicators
         """
-        results = {}
+        # Filter to start_date onwards
+        filtered_df = self.df[self.df['Date'] >= start_date].copy()
         
-        for idx in range(start_row, len(self.df)):
-            row = self.df.iloc[idx]
+        print(f"Filtering data from {start_date} onwards...")
+        print(f"  Rows before filtering: {len(self.df)}")
+        print(f"  Rows after filtering: {len(filtered_df)}")
+        
+        results = []
+        for idx, row in filtered_df.iterrows():
             date_str = row['Date'].strftime('%Y-%m-%d')
             
-            # Hurst state classification
-            hurst_val = row['Hurst']
-            if pd.notna(hurst_val):
-                if hurst_val < 0.5:
-                    hurst_state = "mean_reverting"
-                elif hurst_val > 0.5:
-                    hurst_state = "trending"
-                else:
-                    hurst_state = "random_walk"
-            else:
-                hurst_state = "unknown"
-            
-            results[date_str] = {
-                "XAUUSD": {
-                    "name": "Gold",
-                    "price": {
-                        "o": round(row['Open'], 2),
-                        "h": round(row['High'], 2),
-                        "l": round(row['Low'], 2),
-                        "c": round(row['Close'], 2),
-                        "v": int(row['Volume'])
+            results.append({
+                "date": date_str,
+                "indicators": {
+                    "volatility": {
+                        "parkinson": round(row['Parkinson_Vol'], 4) if pd.notna(row['Parkinson_Vol']) else None,
+                        "yang_zhang": round(row['Yang_Zhang_Vol'], 4) if pd.notna(row['Yang_Zhang_Vol']) else None,
+                        "percentile": round(row['Vol_Percentile'], 2) if pd.notna(row['Vol_Percentile']) else None,
+                        "regime": row['Vol_Regime'] if pd.notna(row['Vol_Regime']) else None
                     },
                     "ema": {
-                        "e9": round(row['EMA_9'], 2),
-                        "e21": round(row['EMA_21'], 2),
-                        "e50": round(row['EMA_50'], 2),
-                        "e200": round(row['EMA_200'], 2)
-                    },
-                    "volatility": {
-                        "parkinson": round(row['Parkinson_Vol'], 4),
-                        "yang_zhang": round(row['YangZhang_Vol'], 4),
-                        "regime": row['Vol_Regime'],
-                        "percentile": round(row['Vol_Percentile'], 2)
-                    },
-                    "hurst": {
-                        "value": round(row['Hurst'], 4) if pd.notna(row['Hurst']) else None,
-                        "state": hurst_state
+                        "ema_9": round(row['EMA_9'], 2) if pd.notna(row['EMA_9']) else None,
+                        "ema_21": round(row['EMA_21'], 2) if pd.notna(row['EMA_21']) else None,
+                        "ema_50": round(row['EMA_50'], 2) if pd.notna(row['EMA_50']) else None,
+                        "ema_200": round(row['EMA_200'], 2) if pd.notna(row['EMA_200']) else None
                     },
                     "momentum": {
                         "rsi": round(row['RSI'], 2) if pd.notna(row['RSI']) else None,
@@ -503,7 +460,7 @@ class TechnicalIndicators:
                         "efficiency_ratio": round(row['Efficiency_Ratio'], 4) if pd.notna(row['Efficiency_Ratio']) else None
                     }
                 }
-            }
+            })
         
         return results
 
@@ -512,13 +469,12 @@ def main():
     """Main execution function"""
     
     print("="*70)
-    print("TECHNICAL INDICATORS CALCULATOR")
-    print("Matches deepin_daily.json structure")
+    print("TECHNICAL INDICATORS CALCULATOR - OPTIMIZED")
+    print("No row skipping - filters by date instead")
     print("="*70)
     print()
     
     # Set paths relative to script location
-    # Script is in NEW directory, data is in NEW/DATA/XAUUSD.csv
     script_dir = os.path.dirname(os.path.abspath(__file__))
     input_file = os.path.join(script_dir, "DATA", "XAUUSD.csv")
     output_dir = os.path.join(script_dir, "DATA")
@@ -585,7 +541,12 @@ def main():
     print("✓ All required columns present")
     print()
     
-    # Calculate indicators
+    # Calculate indicators on ALL data (including 2010)
+    print("="*70)
+    print("CALCULATING INDICATORS ON FULL DATASET")
+    print("="*70)
+    print()
+    
     calc = TechnicalIndicators(df)
     result_df = calc.calculate_all_indicators()
     
@@ -595,11 +556,12 @@ def main():
     print("="*70)
     print()
     
-    # Format to JSON structure (skip first 200 rows for indicator warmup)
+    # Format to JSON structure starting from 2011-01-01
+    # This ensures all indicators have proper lookback period
     print("Formatting to deepin_daily.json structure...")
-    print("  (Starting from row 200 to ensure all indicators are valid)")
+    print("  (Filtering to 2011-01-01 onwards for clean data)")
     
-    json_output = calc.format_to_deepin_structure(start_row=200)
+    json_output = calc.format_to_deepin_structure(start_date='2011-01-01')
     
     # Create output structure
     output = {
@@ -615,10 +577,18 @@ def main():
     print(f"✓ JSON saved to: {output_json}")
     print(f"  Total days: {len(json_output)}")
     
-    # Save CSV with all indicators
+    # Save full CSV with all indicators (including 2010 data)
     output_csv = os.path.join(output_dir, "xauusd_all_indicators.csv")
     result_df.to_csv(output_csv, index=False)
     print(f"✓ Full CSV saved to: {output_csv}")
+    print(f"  (Includes all data from 2010 onwards)")
+    
+    # Save filtered CSV (2011 onwards only)
+    output_csv_filtered = os.path.join(output_dir, "INDICATORS.csv")
+    filtered_df = result_df[result_df['Date'] >= '2011-01-01'].copy()
+    filtered_df.to_csv(output_csv_filtered, index=False)
+    print(f"✓ Filtered CSV saved to: {output_csv_filtered}")
+    print(f"  (2011-01-01 onwards only - for merging)")
     
     # Summary statistics
     print()
@@ -626,8 +596,24 @@ def main():
     print("SUMMARY")
     print("="*70)
     print(f"Total rows processed: {len(result_df)}")
-    print(f"Rows in JSON output: {len(json_output)} (starting from row 200)")
-    print(f"Date range: {result_df['Date'].min()} to {result_df['Date'].max()}")
+    print(f"Rows in JSON output: {len(json_output)} (from 2011-01-01)")
+    print(f"Date range in full data: {result_df['Date'].min()} to {result_df['Date'].max()}")
+    print(f"Date range in filtered output: 2011-01-01 to {result_df['Date'].max()}")
+    print()
+    
+    # Check for remaining NaN values in filtered dataset
+    nan_counts = filtered_df.isnull().sum()
+    nan_cols = nan_counts[nan_counts > 0]
+    
+    if len(nan_cols) > 0:
+        print("⚠ Warning: NaN values in filtered dataset (2011+):")
+        for col, count in nan_cols.items():
+            print(f"  {col}: {count} NaN values")
+        total_nans = nan_counts.sum()
+        print(f"  Total NaN values: {total_nans}")
+    else:
+        print("✓ No NaN values in filtered dataset!")
+    
     print()
     print("Calculated indicators:")
     print("  ✓ EMAs (9, 21, 50, 200)")
@@ -639,7 +625,6 @@ def main():
     print("  ✓ Stochastic (%K, %D)")
     print("  ✓ Ichimoku Cloud (TK, KJ, SA, SB)")
     print("  ✓ Advanced (PSAR, AO, Williams %R, CCI, MFI, ROC)")
-    print("  ✓ Hurst Exponent")
     print("  ✓ VWAP, Efficiency Ratio")
     print()
     print("Skipped (not calculable from OHLCV):")

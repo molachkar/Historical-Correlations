@@ -2,35 +2,19 @@ import pandas as pd
 import os
 from datetime import datetime
 
-# NOTE: If processing Excel files, you may need to install:
-# pip install openpyxl --break-system-packages  (for .xlsx files)
-# pip install xlrd --break-system-packages       (for old .xls files)
-
-# ============= EDIT THIS SECTION =============
-INPUT_FILE = ".csv"  # Change this to process different files
-# Example: "VIX.csv", "NASDAQ.csv", "SP500.csv", "CPI.csv", "geo.csv" etc.
-# =============================================
-
+INPUT_FILE = "GEO.csv"
 
 def clean_and_align_data():
-    """
-    Clean and align data file with master time span skeleton
-    - Filters dates within master skeleton range
-    - Adds missing dates from skeleton
-    - Forward fills missing values
-    """
     
     print("="*70)
     print("DATA CLEANING & ALIGNMENT")
     print("="*70)
     print()
     
-    # Set paths relative to script location
     script_dir = os.path.dirname(os.path.abspath(__file__))
     data_dir = os.path.join(script_dir, "DATA")
-    cleaning_dir = os.path.join(script_dir, "CLEANING")
+    cleaning_dir = os.path.join(script_dir, "pr sample")
     
-    # File paths
     master_file = os.path.join(cleaning_dir, "master_time_span.csv")
     input_file_path = os.path.join(data_dir, INPUT_FILE)
     output_file_path = os.path.join(cleaning_dir, INPUT_FILE)
@@ -40,7 +24,6 @@ def clean_and_align_data():
     print(f"Output location: {output_file_path}")
     print()
     
-    # Check if files exist
     if not os.path.exists(master_file):
         print(f"✗ Error: Master time span file not found at {master_file}")
         print(f"  Please run generate_master_timespan.py first!")
@@ -54,7 +37,6 @@ def clean_and_align_data():
     print("✓ All required files found")
     print()
     
-    # Load master skeleton
     print("Loading master time span skeleton...")
     master_df = pd.read_csv(master_file)
     master_df['Date'] = pd.to_datetime(master_df['Date'])
@@ -62,21 +44,16 @@ def clean_and_align_data():
     print(f"  Range: {master_df['Date'].min()} to {master_df['Date'].max()}")
     print()
     
-    # Load input data
     print(f"Loading input data from {INPUT_FILE}...")
     try:
         data_df = None
-        
-        # Check if it's an Excel file
         file_ext = os.path.splitext(INPUT_FILE)[1].lower()
         
         if file_ext in ['.xls', '.xlsx']:
-            # Load Excel file
             print("  Detected Excel file format")
             data_df = pd.read_excel(input_file_path)
         elif INPUT_FILE.lower().endswith('.csv') or file_ext == '.csv':
-            # Try different encodings for CSV
-            encodings = ['utf-8', 'latin1', 'cp1252', 'iso-8859-1']
+            encodings = ['utf-8', 'latin1', 'cp1252', 'iso-8859-1', 'utf-8-sig']
             
             for encoding in encodings:
                 try:
@@ -87,8 +64,7 @@ def clean_and_align_data():
                 except UnicodeDecodeError:
                     continue
                 except Exception as e:
-                    # If it's not a Unicode error, might be an Excel file misnamed as CSV
-                    if encoding == encodings[0]:  # Only try Excel on first attempt
+                    if encoding == encodings[0]:
                         try:
                             print(f"  CSV failed, trying as Excel file...")
                             data_df = pd.read_excel(input_file_path)
@@ -104,13 +80,11 @@ def clean_and_align_data():
             print(f"✗ Error: Unsupported file format: {file_ext}")
             return
         
-        # Check if it has the multi-row header format (like XAUUSD.csv)
         if 'Price' in data_df.columns:
-            # Reload with proper skiprows
             if file_ext in ['.xls', '.xlsx']:
                 data_df = pd.read_excel(input_file_path, skiprows=[1, 2])
             else:
-                for encoding in ['utf-8', 'latin1', 'cp1252', 'iso-8859-1']:
+                for encoding in ['utf-8', 'latin1', 'cp1252', 'iso-8859-1', 'utf-8-sig']:
                     try:
                         data_df = pd.read_csv(input_file_path, skiprows=[1, 2], encoding=encoding)
                         break
@@ -118,10 +92,8 @@ def clean_and_align_data():
                         continue
             data_df = data_df.rename(columns={'Price': 'Date'})
         
-        # Clean up date column
         if 'Date' not in data_df.columns:
-            # Try to find date column
-            possible_date_cols = ['date', 'DATE', 'Time', 'time', 'Timestamp', 'observation_date', 'OBSERVATION_DATE']
+            possible_date_cols = ['date', 'DATE', 'Time', 'time', 'Timestamp', 'observation_date', 'OBSERVATION_DATE', 'month', 'Month', 'MONTH']
             for col in possible_date_cols:
                 if col in data_df.columns:
                     data_df = data_df.rename(columns={col: 'Date'})
@@ -132,16 +104,17 @@ def clean_and_align_data():
             print(f"  Available columns: {list(data_df.columns)}")
             return
         
-        # Remove rows with missing dates
         data_df = data_df[data_df['Date'].notna()]
         data_df = data_df[data_df['Date'] != '']
         
-        # Convert date column to datetime
         data_df['Date'] = pd.to_datetime(data_df['Date'], errors='coerce')
         data_df = data_df[data_df['Date'].notna()]
         
+        data_cols = [col for col in data_df.columns if col != 'Date']
+        data_df = data_df.dropna(how='all', subset=data_cols)
+        
         print(f"✓ Input data loaded: {len(data_df)} rows")
-        print(f"  Columns: {list(data_df.columns)}")
+        print(f"  Columns: {len(data_df.columns)} columns")
         print(f"  Date range: {data_df['Date'].min()} to {data_df['Date'].max()}")
         print()
         
@@ -151,7 +124,6 @@ def clean_and_align_data():
         traceback.print_exc()
         return
     
-    # Filter data - drop dates outside master skeleton range
     print("Filtering dates...")
     master_start = master_df['Date'].min()
     master_end = master_df['Date'].max()
@@ -165,7 +137,6 @@ def clean_and_align_data():
     print(f"  Dropped: {dropped_count} rows (outside {master_start.date()} to {master_end.date()})")
     print()
     
-    # Merge with master skeleton
     print("Merging with master skeleton...")
     merged_df = master_df.merge(data_df, on='Date', how='left')
     
@@ -175,16 +146,12 @@ def clean_and_align_data():
     print(f"  Rows with missing data: {missing_count}")
     print()
     
-    # Forward fill missing values
     print("Forward filling missing values...")
-    # Get all columns except Date
     data_columns = [col for col in merged_df.columns if col != 'Date']
     
-    # Forward fill each data column
     for col in data_columns:
         merged_df[col] = merged_df[col].ffill()
     
-    # Count remaining NaN values (in case first rows have no data to forward fill from)
     remaining_na = merged_df[data_columns].isna().sum().sum()
     
     print(f"✓ Forward fill complete")
@@ -195,7 +162,6 @@ def clean_and_align_data():
         print(f"  All missing values filled successfully")
     print()
     
-    # Save output
     print(f"Saving cleaned data to {output_file_path}...")
     merged_df['Date'] = merged_df['Date'].dt.strftime('%Y-%m-%d')
     merged_df.to_csv(output_file_path, index=False)
@@ -203,7 +169,6 @@ def clean_and_align_data():
     print(f"✓ Saved successfully")
     print()
     
-    # Summary
     print("="*70)
     print("SUMMARY")
     print("="*70)

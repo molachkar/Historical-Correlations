@@ -1,0 +1,72 @@
+Multi-Strategy Trading Robot: Forecast & Architecture
+Summary
+This report forecasts XAU/USD to average ~$3,675 by Q4 2025, potentially surpassing $4,000 / oz by Q2 2026, and the DXY to trade near 109.45 by quarter-end and 112.50 in 12 months, based on major bank and macroeconomic models​
+Reuters
+Trading Economics
+. It outlines a modular, multi-timeframe system combining fundamental, technical and quantitative modules, and details ML enhancements—NLP for news sentiment, LSTM for price signals, and hybrid ML-Monte Carlo methods—validating feasibility with industry practices​
+LinkedIn
+QuantInsti Blog
+.
+
+Forecasts
+XAU/USD (Gold)
+JP Morgan forecasts gold to average $3,675 / oz by Q4 2025 and exceed $4,000 / oz by Q2 2026, driven by recession risks and strong central-bank demand​
+Reuters
+.
+Gold has surged ~28% YTD, trading near $3,500 / oz, underpinned by geopolitical uncertainty and U.S. policy tensions​
+Business Insider
+.
+Technical levels suggest support at 3,000 – 3,054 and resistance near 3,115 – 3,160 for Q2 2025, pointing to an overall bullish mid-year bias​
+TradingView
+.
+
+DXY (U.S. Dollar Index)
+Trading Economics models project the DXY at 109.45 by quarter-end and 112.50 in 12 months, reflecting relative U.S. macro strength and rate differentials​
+Trading Economics
+Trading Economics
+.
+Current DXY stands near 108.24; forecasts hinge on Fed policy, CPI surprises and global risk-off flows​
+Trading Economics
+.
+
+Architecture & Modules
+Modular Ensemble Design
+Use separate modules for fundamentals, technicals and quantitative analysis; each outputs a normalized signal, then a weighted ensemble aggregates them into a final decision​
+LinkedIn
+QuantInsti Blog
+. Advantages: clear unit testing, adjustable weights, and independent improvements.
+
+Multi-Timeframe Pipelines
+Implement parallel data streams for each timeframe (e.g., 5 m, 1 h, daily). Each module ingests all frames, extracts features, then forwards timeframe-specific signals to the ensemble for prioritization​
+QuantInsti Blog
+.
+
+ML Integration
+Fundamental Module
+News Sentiment (NLP): BERT-based models score real-time news and geopolitical alerts to gauge market sentiment and macro surprises​
+Medium
+ScienceDirect
+.
+
+Macro Forecasting: Supervised regressions/classifiers on GDP, CPI, rates to predict directional bias in gold and DXY​
+ScienceDirect
+.
+
+Technical Module
+LSTM/CNN Forecasting: Sequence models on OHLC plus engineered indicators (MA, RSI, MACD) deliver multi-frame price predictions​
+Medium
+.
+
+Feature Engineering: Combine standard indicators with equity-research metrics (valuation deviations) to refine signals.
+
+Quantitative Module
+Hybrid ML–Monte Carlo: Integrate ML-predicted returns into Monte Carlo risk simulations for P/L distributions and optimized position sizing​
+arXiv
+.
+
+Reinforcement Learning: Train agents (e.g., DQN, PPO) in simulated environments to adapt entry/exit and risk parameters dynamically​
+ScienceDirect
+.
+
+Conclusion
+A modular, ML-enhanced, multi-timeframe trading robot for XAU/USD and DXY is realistic and aligns with current best practices. Success requires robust data pipelines, scalable compute, rigorous backtesting, and continuous model retraining. Continuous monitoring of forecasts and model performance will ensure adaptive, high-confidence decisions.

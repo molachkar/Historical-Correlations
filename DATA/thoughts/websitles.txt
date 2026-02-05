@@ -1,0 +1,1 @@
+monte carlo thoery: https://en.wikipedia.org/wiki/Hamiltonian_Monte_Carlo

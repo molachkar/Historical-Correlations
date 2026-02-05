@@ -1,0 +1,29 @@
+
+- Real Interest Rates (FRED DFII10), Consider using multiple timeframes (1Y, 5Y, 10Y TIPS) for broader perspective.
+- Fed Policy Stance(dovish/hawkish), Use Fed funds futures to gauge policy expectations, Monitor FOMC meeting minutes sentiment analysis,
+Track Fed officials' speeches using NLP.
+- Consumer Price Index (CPI) Use both headline and core CPI, Include PCE (Fed's preferred inflation measure),
+Add inflation expectations from TIPS breakevens
+- Geopolitical Risk Score Use VIX (volatility index) as quantitative measure,Include currency volatility indices, 
+Weight by market cap of affected countries.
+- ETF Flows, Track GLD, IAU, SGOL flows specifically, Include physical gold demand from major markets (India, China), 
+Monitor central bank purchases separately.
+- Central Bank Purchases Increase weight to 15-20%, Use World Gold Council data, Track quarterly purchases by major central banks.
+- US Dollar Index (DXY), Increase weight significantly, Use DXY futures for forward-looking view, Include USD/major currencies individually.
+- rsi, ema 200/50 cross overs, above and below methods, macd.
+- gold futures open interes Shows institutional positioning.
+- gold/silver ratio for Historical mean reversion indicator.
+- Real Gold Price vs Historical Average for Mean reversion potential.
+- Yield Curve Shape show Economic cycle indicator.
+- Equity Market Stress (VIX) Safe haven demand.
+- nasdaq s&p 500 to know market health with can effect the dollar i guess,
+- dollar mesurement strengh indexex.
+- when analysing all those components the bot have to be aware of time in order to match my trading timeframe.
+- all indexes above that uses some sort of news or speech have to use vector reaserch method.
+- showcase the best sentiment index right now and add it to vector section.
+- rules are simple, fetch all data needed, clean it, use weighting method to match each index its impact, calculate all that
+match it with timeframe i want(still don.t know how), give overall buy or sell with all data fetched desplayed to also
+be a humanic desicion before taking a trade, this boot now will be backtested on pythong backtesting lieberaries, so is it neccessary to include 
+risk managment exit and entry strategyie to do it?
+- now i just came acroos and articl on what jimmme simmons used to work with his ai models, i discorverd that hw use every available data he find out there
+even whether, so do i need to add more inexes to increase the probability of hitting a winning bot.

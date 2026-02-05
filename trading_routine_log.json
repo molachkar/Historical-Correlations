@@ -1,0 +1,44 @@
+[
+  {
+    "date": "2025-11-03",
+    "start_time": "2025-11-03 17:31:57",
+    "end_time": "2025-11-03 17:32:06",
+    "trades_taken": 0,
+    "steps_completed": 1,
+    "log": [
+      {
+        "step": 1,
+        "phase": "PRE-MARKET PREPARATION",
+        "question": "Have you checked the economic calendar for high-impact news today?",
+        "time": "2025-11-03 17:31:57"
+      }
+    ]
+  },
+  {
+    "date": "2025-11-13",
+    "start_time": "2025-11-13 17:42:38",
+    "end_time": "2025-11-13 17:43:31",
+    "trades_taken": 0,
+    "steps_completed": 3,
+    "log": [
+      {
+        "step": 1,
+        "phase": "PRE-MARKET PREPARATION",
+        "question": "Have you checked the economic calendar for high-impact news today?",
+        "time": "2025-11-13 17:42:38"
+      },
+      {
+        "step": 2,
+        "phase": "PRE-MARKET PREPARATION",
+        "question": "Is there any major news event scheduled today (NFP, FOMC, CPI)?",
+        "time": "2025-11-13 17:43:23"
+      },
+      {
+        "step": 3,
+        "phase": "PRE-MARKET PREPARATION",
+        "question": "Have you run the ML model with yesterday's data?",
+        "time": "2025-11-13 17:43:26"
+      }
+    ]
+  }
+]

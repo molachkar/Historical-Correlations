@@ -1,0 +1,10 @@
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRoX3Rva2VuIjoiQWdJUEU3WHpkQ0h3RVdIWmdwbHZGcU5kQXFxYTl0QVlySjlYZ2wxTSIsImV4cCI6MTc5Mzc5MzI4MH0.2wEa217mZbwNX_UQ5erzuIdxu28TRPEJpLlBRBlQq1g
+
+
+✓ quote works
+✓ historical works
+✗ news failed:
+[Empty] -> No data was returned for the given sym
+✓ profile works
+✓ income works
+✓ balance works

@@ -1,0 +1,31 @@
+Below are the two ordered lists you requested:
+
+Investment-Preference Ranking
+Advanced Micro Devices (AMD)
+
+Broadcom (AVGO)
+
+Applied Materials (AMAT)
+
+Micron Technology (MU)
+
+GlobalFoundries (GFS)
+
+Siltronic AG (WAF.DE)
+
+Silicon Box (private)
+
+Military & AI Involvement Ranking
+GlobalFoundries (GFS)
+
+Broadcom (AVGO)
+
+Advanced Micro Devices (AMD)
+
+Micron Technology (MU)
+
+Applied Materials (AMAT)
+
+Siltronic AG (WAF.DE)
+
+Silicon Box (private)

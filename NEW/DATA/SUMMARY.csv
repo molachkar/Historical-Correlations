@@ -1,0 +1,9 @@
+name,ticker,start,end,days,file
+XAUUSD,GC=F,2010-01-04,2025-01-31,3792,market_data_output/XAUUSD.csv
+DXY,DX-Y.NYB,2010-01-04,2025-01-31,3794,market_data_output/DXY.csv
+NASDAQ,^IXIC,2010-01-04,2025-01-31,3794,market_data_output/NASDAQ.csv
+SP500,^GSPC,2010-01-04,2025-01-31,3794,market_data_output/SP500.csv
+RUSSELL2000,^RUT,2010-01-04,2025-01-31,3794,market_data_output/RUSSELL2000.csv
+VIX,^VIX,2010-01-04,2025-01-31,3794,market_data_output/VIX.csv
+EURUSD,EURUSD=X,2010-01-01,2025-01-31,3930,market_data_output/EURUSD.csv
+USDJPY,USDJPY=X,2010-01-01,2025-01-31,3930,market_data_output/USDJPY.csv

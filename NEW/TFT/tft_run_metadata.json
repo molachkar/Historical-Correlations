@@ -1,0 +1,29 @@
+{
+  "best_checkpoint": "/TFT training/tft_out/tft-best.ckpt",
+  "precision": "32",
+  "target": "gold_return_10d",
+  "encoder_length": 90,
+  "prediction_length": 10,
+  "known_reals": [
+    "time_idx",
+    "dow",
+    "month"
+  ],
+  "unknown_reals_count": 61,
+  "categoricals": [
+    "Vol_Regime",
+    "Trend_Regime",
+    "Risk_State",
+    "Market_State",
+    "Bull_Bear_Label"
+  ],
+  "batch_size": 64,
+  "max_epochs": 50,
+  "learning_rate": 0.0002,
+  "hidden_size": 256,
+  "attention_heads": 8,
+  "dropout": 0.15,
+  "hidden_continuous_size": 128,
+  "seed": 7,
+  "gpu": true
+}

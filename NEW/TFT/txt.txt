@@ -1,0 +1,24 @@
+his plan is this, Checklist to validate the plan
+KEEP (no change)
+* TFT framework unchanged
+* Model architecture kept at hidden_size = 256, attention_heads = 8
+* Full 80+ feature set retained
+FIX — prediction task
+* `MAX_PREDICTION_LENGTH` changed from 60 → 10
+FIX — feature leakage
+* `Vol_Percentile` thresholds computed only on training data
+* `Vol_Regime` thresholds computed only on training data
+* The same thresholds are applied to validation windows without recomputing them on validation
+FIX — variable classification
+* All economic / macro indicators moved to `time_varying_unknown_reals`
+* No macro variable remains in `time_varying_known_reals`
+FIX — validation scheme
+* Keep the original train/val split
+* Add 3–4 forward validation windows after the initial split
+CODE LOCATIONS (confirmation)
+* Line 19 updated: `MAX_PREDICTION_LENGTH = 10`
+* Lines 84–85 modified to compute volatility regime from train only
+* Lines 119–127 modified so all macro variables are classified as unknown do you agree
+
+
+

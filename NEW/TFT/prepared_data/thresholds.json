@@ -1,0 +1,47 @@
+{
+  "price_mean": 1395.1777103397437,
+  "price_std": 218.88430903780124,
+  "price_min": 1050.800049,
+  "price_max": 2051.5,
+  "price_all_time_high": 2051.5,
+  "price_all_time_low": 1050.800049,
+  "volume_mean": 5627.856934731934,
+  "volume_std": 30870.329688894413,
+  "volume_min": 0.0,
+  "volume_max": 386334.0,
+  "return_mean": 7.914223411151808e-05,
+  "return_std": 0.008684429577506552,
+  "logreturn_mean": 4.129310256964632e-05,
+  "logreturn_std": 0.008709001551364642,
+  "price_edges": [
+    -Infinity,
+    1237.0,
+    1308.8500365,
+    1580.699982,
+    Infinity
+  ],
+  "volume_edges": [
+    -Infinity,
+    57.0,
+    308.0,
+    Infinity
+  ],
+  "return_edges": [
+    -Infinity,
+    -0.0003013515076709028,
+    0.00040470213780410927,
+    Infinity
+  ],
+  "logreturn_edges": [
+    -Infinity,
+    -0.00030139692316120487,
+    0.000404620266964232,
+    Infinity
+  ],
+  "vol_edges": [
+    -Infinity,
+    11.922360348985716,
+    19.415103498355165,
+    Infinity
+  ]
+}

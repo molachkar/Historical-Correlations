@@ -1,0 +1,6 @@
+pytorch-forecasting==1.6.1
+pytorch-lightning
+torchmetrics
+pandas
+numpy
+scikit-learn
